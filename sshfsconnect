@@ -7,14 +7,60 @@
 # Version 0.0.1
 # Licence: GNU General Public License v3.0
 
+CONFIG_DIR=~/.config/sshfsconnect
+SSHFS_OPTIONS="auto_cache,kernel_cache,reconnect,transform_symlinks,follow_symlinks,default_permissions,hard_remove,allow_other"
+
+# check preconditions
+check() {
+	command -v sshfs >/dev/null 2>&1 || { echo >&2 "I require sshfs but it's not installed. Please install sshfs."; exit 1;}
+	command -v zenity >/dev/null 2>&1 || { echo >&2 "I require zenity but it's not installed. Please install zenity."; exit 1;}
+	test $(grep "^user_allow_other" /etc/fuse.conf) || { echo >&2 "I require user_allow_other in /etc/fuse.conf. Aborting."; exit 1;}
+	test $(grep "^Host " ~/.ssh/config | wc -l) -gt 0 || { echo >&2 "I require a usable Host in ~/.ssh/config. Please follow README.";}
+}
+
+# select a host
+select() {
+	host="$(zenity --list --radiolist --column Select --column Host $(echo $(grep "^Host " ~/.ssh/config | awk '{print "FALSE "$2}')))"
+
+	test -z $host && { echo >&2 "No host selected. Aborting."; exit 1;}
+	echo $host
+}
+
+# adding default config
+configure() {
+	sshfsconfig="$CONFIG_DIR/$1"
+
+	test -d $config || mkdir -p $config
+	test -f $sshfsconfig && return
+
+	echo "DIR=/" > $sshfsconfig
+	echo "OPTIONS=$SSHFS_OPTIONS" >> $sshfsconfig
+
+	echo "Please check default config from here: $sshfsconfig"
+}
+
+mount() {
+	host=$1
+	mount=~/mount/$host
+	sshfsconfig="$CONFIG_DIR/$1"
+	dir="$(grep "^DIR=" $sshfsconfig | awk -F '=' '{print $2}')"
+	options="$(grep "^OPTIONS=" $sshfsconfig | awk -F '=' '{print $2}')"
+
+	test -d "$mount" || mkdir -p "$mount"
+	sshfs $host:$dir $mount -o $options
+
+	test $? = 0 && echo "Filesystem is mounted here: $mount" || echo "Error occured"
+}
 
 
-command -v sshfs >/dev/null 2>&1 || { echo >&2 "I require sshfs but it's not installed.  Aborting."; exit 1;}
-command -v zenity >/dev/null 2>&1 || { echo >&2 "I require zenity but it's not installed.  Aborting."; exit 1;}
-test $(grep "^user_allow_other" /etc/fuse.conf) || { echo >&2 "I require user_allow_other in /etc/fuse.conf.  Aborting."; exit 1;}
-test $(grep "^Host " ~/.ssh/config | wc -l) -gt 0 || { echo >&2 "I require a usable Host in ~/.ssh/config.  Aborting.";}
+# check if all requirements are met
+check
 
-server=$(zenity --list --radiolist --column Select --column Server echo $(grep "^Host " ~/.ssh/config | awk '{print $2" FALSE"}'))
-test -z $server && { echo >&2 "No server selected.  Aborting."; exit 1;}
-mkdir -p ~/mount/$server
-sshfs $server:/ ~/mount/$server -o auto_cache,kernel_cache,reconnect,transform_symlinks,follow_symlinks,default_permissions,hard_remove,allow_other
+# choose host
+host="$(select)"
+
+# configure the chosen host
+configure $host
+
+# mount to filesystem
+mount $host
