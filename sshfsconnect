@@ -12,10 +12,10 @@ SSHFS_OPTIONS="auto_cache,kernel_cache,reconnect,transform_symlinks,follow_symli
 
 # check preconditions
 check() {
-	command -v sshfs >/dev/null 2>&1 || { echo >&2 "I require sshfs but it's not installed. Please install sshfs."; exit 1;}
-	command -v zenity >/dev/null 2>&1 || { echo >&2 "I require zenity but it's not installed. Please install zenity."; exit 1;}
+	command -v sshfs >/dev/null 2>&1 || { echo >&2 "I require sshfs but it's not installed. Please install sshfs via package manager."; exit 1;}
+	command -v zenity >/dev/null 2>&1 || { echo >&2 "I require zenity but it's not installed. Please install zenity via package manager."; exit 1;}
 	test $(grep "^user_allow_other" /etc/fuse.conf) || { echo >&2 "I require user_allow_other in /etc/fuse.conf. Aborting."; exit 1;}
-	test $(grep "^Host " ~/.ssh/config | wc -l) -gt 0 || { echo >&2 "I require a usable Host in ~/.ssh/config. Please follow README.";}
+	test $(grep "^Host " ~/.ssh/config | wc -l) -gt 0 || { echo >&2 "I require a configured Host in ~/.ssh/config. Please see https://github.com/bernermic/sshfsconnect/blob/master/README.md#ssh-config.";}
 }
 
 # select a host
