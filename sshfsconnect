@@ -15,7 +15,7 @@ check() {
 	command -v sshfs >/dev/null 2>&1 || { echo >&2 "I require sshfs but it's not installed. Please install sshfs via package manager."; exit 1;}
 	command -v zenity >/dev/null 2>&1 || { echo >&2 "I require zenity but it's not installed. Please install zenity via package manager."; exit 1;}
 	test $(grep "^user_allow_other" /etc/fuse.conf) || { echo >&2 "I require user_allow_other in /etc/fuse.conf. Aborting."; exit 1;}
-	test $(grep "^Host " ~/.ssh/config | wc -l) -gt 0 || { echo >&2 "I require a configured Host in ~/.ssh/config. Please see https://github.com/bernermic/sshfsconnect/blob/master/README.md#ssh-config.";}
+	test $(grep "^Host " ~/.ssh/config | wc -l) -gt 0 || { echo >&2 "I require a configured Host in ~/.ssh/config. Please see https://github.com/bernermic/sshfsconnect/blob/master/README.md#ssh-config."; exit 1;}
 }
 
 # select a host
@@ -30,18 +30,34 @@ select() {
 configure() {
 	sshfsconfig="$CONFIG_DIR/$1"
 
-	test -d $config || mkdir -p $config
 	test -f $sshfsconfig && return
 
+	test -d $config || mkdir -p $config
 	echo "DIR=/" > $sshfsconfig
 	echo "OPTIONS=$SSHFS_OPTIONS" >> $sshfsconfig
 
-	echo "Please check default config from here: $sshfsconfig"
+	echo "You can modify the default config here: $sshfsconfig"
 }
 
-mount() {
+toggleMount() {
 	host=$1
 	mount=~/mount/$host
+
+	test -z $(mount | grep $mount) && mnt $host $mount || unmount $mount
+}
+
+unmount() {
+	mount=$1
+
+	fusermount -u $mount
+
+	test $? = 0 && echo "$mount is unmounted" || echo "Error occured while unmount"
+}
+
+mnt() {
+	host=$1
+	mount=$2
+
 	sshfsconfig="$CONFIG_DIR/$1"
 	dir="$(grep "^DIR=" $sshfsconfig | awk -F '=' '{print $2}')"
 	options="$(grep "^OPTIONS=" $sshfsconfig | awk -F '=' '{print $2}')"
@@ -49,7 +65,7 @@ mount() {
 	test -d "$mount" || mkdir -p "$mount"
 	sshfs $host:$dir $mount -o $options
 
-	test $? = 0 && echo "Filesystem is mounted here: $mount" || echo "Error occured"
+	test $? = 0 && echo "$mount is mounted" || echo "Error occured while mount"
 }
 
 
@@ -62,5 +78,5 @@ host="$(select)"
 # configure the chosen host
 configure $host
 
-# mount to filesystem
-mount $host
+# mount or unmount filesystem
+toggleMount $host
