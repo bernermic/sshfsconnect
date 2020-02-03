@@ -4,7 +4,7 @@
 # Description: bash script for connect remote server via sshfs and standard ssh config
 # Author: Michael Berner
 # Project URL: https://github.com/bernermic/sshfsconnect
-# Version 0.0.1
+# Version 1.0.0
 # Licence: GNU General Public License v3.0
 
 CONFIG_DIR=~/.config/sshfsconnect
@@ -43,7 +43,7 @@ toggleMount() {
 	host=$1
 	mount=~/mount/$host
 
-	test -z $(mount | grep $mount) && mnt $host $mount || unmount $mount
+	test -z "$(mount | grep $mount)" && mnt $host $mount || unmount $mount
 }
 
 unmount() {
