@@ -1,20 +1,20 @@
-# sshfsconnect
-Utility for mounting a remote filesystem via ssh. It will show you a simple dialogue window with your configured hosts in `~/.ssh/config` to connect to.
-* simply download and place `sshfsconnect` into `~/.local/bin/`
-* from CLI call `sshfsconnect`
+# sshfsmanager
+Utility for mounting / unmounting a remote filesystem via ssh. It will show you a simple dialogue window with your configured hosts in `~/.ssh/config` to connect to.  
+If already connected script will unmount the selected host mount.
+* simply download and place `sshfsmanager` into `~/.local/bin/`
+* from CLI call `sshfsmanager`
 * follow instructions from there
 
 ## Install
 The script will check this preconditions and tell you if it missing something.
 * assumes generated ssh-key `~/.ssh/id_rsa` is imported on remote host
-  * otherwise you have to enter the user's password on connect
 * assumes ssh Host config `~/.ssh/config` is given
 
 
 ## Example config
 ### ssh key
-For better security it is recommended to set up and use an ssh key `~/.ssh/id_rsa` for authentication. 
-[Generate SSH key](https://linuxize.com/post/how-to-setup-passwordless-ssh-login/).
+For better security it is recommended to set up and use an ssh key `~/.ssh/id_rsa` for authentication.  
+[Read how to generate an SSH key](https://linuxize.com/post/how-to-setup-passwordless-ssh-login/).
 ### ssh config
 Disclaimer: this is just a example `~/.ssh/config` replace *example* with your domain/user. 
 ```
