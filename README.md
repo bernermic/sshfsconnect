@@ -1,7 +1,7 @@
 # sshfsmanager
 Utility for mounting / unmounting a remote filesystem via ssh. It will show you a simple dialogue window with your configured hosts in `~/.ssh/config` to connect to.  
 If already connected script will unmount the selected host mount.
-* simply download and place `sshfsmanager` into `~/.local/bin/`
+* run command `wget -O ~/.local/bin/sshfsmanager https://raw.githubusercontent.com/bernermic/sshfsmanager/master/sshfsmanager` this simply downloads the script and places `sshfsmanager` into `~/.local/bin/`
 * from CLI call `sshfsmanager`
 * follow instructions from there
 

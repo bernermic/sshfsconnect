@@ -22,7 +22,6 @@ check() {
 select() {
 	host="$(zenity --list --radiolist --column Select --column Host $(echo $(grep "^Host " ~/.ssh/config | awk '{print "FALSE "$2}')))"
 
-	test -z $host && { echo >&2 "No host selected. Aborting."; exit 1;}
 	echo $host
 }
 
@@ -74,6 +73,7 @@ check
 
 # choose host
 host="$(select)"
+test -z $host && { echo >&2 "No host selected. Aborting."; exit 1; }
 
 # configure the chosen host
 configure $host
